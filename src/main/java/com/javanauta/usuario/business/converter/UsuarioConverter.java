@@ -29,11 +29,11 @@ public class UsuarioConverter {
 
     public Endereco paraEndereco(EnderecoDTO enderecoDTO) {
         return Endereco.builder()
-                .rua(enderecoDTO.getRua())
-                .numero(enderecoDTO.getNumero())
-                .cidade(enderecoDTO.getCidade())
+              .rua(enderecoDTO.getRua())
+               .numero(enderecoDTO.getNumero())
+              .cidade(enderecoDTO.getCidade())
                 .complemento(enderecoDTO.getComplemento())
-                .cep(enderecoDTO.getCep())
+              .cep(enderecoDTO.getCep())
                 .estado(enderecoDTO.getEstado())
                 .build();
     }
@@ -116,6 +116,26 @@ public class UsuarioConverter {
                 .id(entity.getId())
                 .ddd(dto.getDdd() != null ? dto.getDdd() : entity.getDdd())
                 .numero(dto.getNumero() != null ? dto.getNumero() : entity.getNumero())
+                .build();
+    }
+
+    public Endereco paraEnderecoEntity(EnderecoDTO dto, Long idUsuario){
+        return Endereco.builder()
+                .rua(dto.getRua())
+                .cidade(dto.getCidade())
+                .cep(dto.getCep())
+                .complemento(dto.getComplemento())
+                .estado(dto.getEstado())
+                .numero(dto.getNumero())
+                .usuario_id(idUsuario)
+                .build();
+    }
+
+    public Telefone paraTelefoneEntity(TelefoneDTO dto, Long idUsuario){
+        return Telefone.builder()
+                .numero(dto.getNumero())
+                .ddd(dto.getDdd())
+                .usuario_id(idUsuario)
                 .build();
     }
 }
