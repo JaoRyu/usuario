@@ -1,7 +1,7 @@
 package com.oakdev.usuario.infrastructure.repository;
 
 
-import com.javanauta.usuario.infrastructure.entity.Telefone;
+import com.oakdev.usuario.infrastructure.entity.Telefone;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
