@@ -1,12 +1,19 @@
 package com.oakdev.usuario.business;
 
 
+import com.oakdev.usuario.business.dto.EnderecoDTO;
+import com.oakdev.usuario.business.dto.TelefoneDTO;
 import com.oakdev.usuario.business.dto.UsuarioDTO;
 import com.oakdev.usuario.business.mapper.UsuarioMapper;
+import com.oakdev.usuario.infrastructure.entity.Endereco;
+import com.oakdev.usuario.infrastructure.entity.Telefone;
 import com.oakdev.usuario.infrastructure.entity.Usuario;
 import com.oakdev.usuario.infrastructure.exceptions.ConflictException;
 import com.oakdev.usuario.infrastructure.exceptions.ResourceNotFoundException;
+import com.oakdev.usuario.infrastructure.repository.EnderecoRepository;
+import com.oakdev.usuario.infrastructure.repository.TelefoneRepository;
 import com.oakdev.usuario.infrastructure.repository.UsuarioRepository;
+import com.oakdev.usuario.infrastructure.security.JwtUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,8 +25,11 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final UsuarioMapper usuarioMapper;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+    private final EnderecoRepository enderecoRepository;
+    private final TelefoneRepository telefoneRepository;
 
-    public UsuarioDTO salvaUsuario(UsuarioDTO usuarioDTO){
+    public UsuarioDTO salvaUsuario(UsuarioDTO usuarioDTO) {
         emailExiste(usuarioDTO.getEmail());
         usuarioDTO.setSenha(passwordEncoder.encode(usuarioDTO.getSenha()));
         Usuario usuario = usuarioMapper.paraUsuario(usuarioDTO);
@@ -42,11 +52,55 @@ public class UsuarioService {
         return usuarioRepository.existsByEmail(email);
     }
 
-    public Usuario buscarUsuarioPorEmail(String email) {
-        return usuarioRepository.findByEmail(email).orElseThrow(
-                () -> new ResourceNotFoundException("Email não encontrado" + email));
+    public UsuarioDTO buscarUsuarioPorEmail(String email) {
+
+        try {
+            return usuarioMapper.paraUsuarioDTO(
+                    usuarioRepository.findByEmail(email)
+                            .orElseThrow(
+                                    () -> new ResourceNotFoundException("Email não encontrado" + email)
+                            )
+            );
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException("Email não encontrado" + email);
+        }
+
     }
-    public void deletaUsuarioPorEmail(String email){
+
+    public void deletaUsuarioPorEmail(String email) {
         usuarioRepository.deleteByEmail(email);
     }
+
+    public UsuarioDTO atualizaDadosUsuario(String token, UsuarioDTO dto) {
+        String email = jwtUtil.extrairEmailToken(token.substring(7));
+
+
+        dto.setSenha(dto.getSenha() != null ? passwordEncoder.encode(dto.getSenha()) : null);
+        Usuario usuarioEntity = usuarioRepository.findByEmail(email).orElseThrow(() ->
+                new ResourceNotFoundException("Email não localizado"));
+
+        Usuario usuario = usuarioMapper.updateUsuario(dto, usuarioEntity);
+
+        return usuarioMapper.paraUsuarioDTO(usuarioRepository.save(usuario));
+    }
+
+    public EnderecoDTO atualizaEndereco(Long idEndereco, EnderecoDTO enderecoDTO) {
+
+        Endereco entity = enderecoRepository.findById(idEndereco).orElseThrow(() ->
+                new ResourceNotFoundException("Id não encontrado" + idEndereco));
+        Endereco endereco = usuarioMapper.updateEndereco(enderecoDTO, entity);
+
+
+        return usuarioMapper.paraEnderecoDTO(enderecoRepository.save(endereco));
+    }
+
+    public TelefoneDTO atualizaTelefone(Long idTelefone, TelefoneDTO telefoneDTO) {
+
+        Telefone entity = telefoneRepository.findById(idTelefone).orElseThrow(() ->
+                new ResourceNotFoundException("Id não encontrado" + idTelefone));
+        Telefone telefone = usuarioMapper.updateTelefone(telefoneDTO, entity);
+
+        return usuarioMapper.paraTelefoneDTO(telefoneRepository.save(telefone));
+    }
 }
+
