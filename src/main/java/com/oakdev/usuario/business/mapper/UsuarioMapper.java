@@ -67,6 +67,7 @@ public class UsuarioMapper {
 
     public EnderecoDTO paraEnderecoDTO(Endereco endereco) {
         return EnderecoDTO.builder()
+                .id(endereco.getId())
                 .rua(endereco.getRua())
                 .numero(endereco.getNumero())
                 .cidade(endereco.getCidade())
@@ -82,6 +83,7 @@ public class UsuarioMapper {
 
     public TelefoneDTO paraTelefoneDTO(Telefone telefone) {
         return TelefoneDTO.builder()
+                .id(telefone.getId())
                 .numero(telefone.getNumero())
                 .ddd(telefone.getDdd())
                 .build();
@@ -100,6 +102,7 @@ public class UsuarioMapper {
 
     public Endereco updateEndereco(EnderecoDTO dto, Endereco entity){
         return Endereco.builder()
+                .id(entity.getId())
                 .rua(dto.getRua() != null ? dto.getRua() : entity.getRua())
                 .numero(dto.getNumero() != null ? dto.getNumero() : entity.getNumero())
                 .cidade(dto.getCidade() != null ? dto.getCidade() : entity.getCidade())
